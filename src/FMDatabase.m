@@ -933,9 +933,14 @@
             NSLog(@"DB Query: %@", sql);
         }
         else {
-            // wtf?
-            NSLog(@"Unknown error calling sqlite3_step (%d: %s) eu", rc, sqlite3_errmsg(_db));
-            NSLog(@"DB Query: %@", sql);
+            // allow for pragmas which return rows (bkr)
+            if( SQLITE_ROW == rc && [[sql lowercaseString] hasPrefix: @"pragma "] ) {
+                rc = SQLITE_DONE;
+            } else {
+                // wtf?
+                NSLog(@"Unknown error calling sqlite3_step (%d: %s) eu", rc, sqlite3_errmsg(_db));
+                NSLog(@"DB Query: %@", sql);
+            }
         }
         
     } while (retry);
